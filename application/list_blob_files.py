@@ -3,11 +3,12 @@ import re
 from azure.storage.blob import BlockBlobService
 
 class BlobFilesPattern:
-    def __init__(self, account, account_key, container_name, number_of_days_old, file_pattern):
+    def __init__(self, account, account_key, condition, number_of_days_old, container_name, file_pattern):
         self.account = account
         self.account_key = account_key
-        self.container_name = container_name
+        self.condition =  condition
         self.number_of_days_old = int(number_of_days_old)
+        self.container_name = container_name
         self.file_pattern =  file_pattern
 
     def azure_blob_file(self):
@@ -20,6 +21,12 @@ class BlobFilesPattern:
             if (regular_exp.match(str(blob.name))):
                 blob_date = blob.properties.last_modified.date()
                 time_between_insertion = today - blob_date
-                if  time_between_insertion.days > self.number_of_days_old:
-                    name_list.append(blob.name)
+                if self.condition == "last":
+                    if  time_between_insertion.days <= self.number_of_days_old:
+                        name_list.append(blob.name)
+                elif self.condition == "before":
+                    if  time_between_insertion.days >= self.number_of_days_old:
+                        name_list.append(blob.name)
+                else:
+                    print("Unexpected ERROR..!!")
         return name_list
