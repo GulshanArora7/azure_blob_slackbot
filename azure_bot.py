@@ -18,6 +18,11 @@ from application.slack_post import SlackPost
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
+subscription_id = os.environ.get("SUBSCRIPTION_ID")
+client_id=os.environ.get("CLIENT_ID")
+client_secret=os.environ.get("CLIENT_SECRET")
+tenant_id=os.environ.get("TENANT_ID")
+SLACK_BOT_TOKEN =  os.environ.get("SLACK_BOT_TOKEN")
 
 def is_request_valid(request):
     is_token_valid = request.form['token'] == os.environ.get("SLACK_VERIFICATION_TOKEN")
@@ -40,15 +45,10 @@ def bot_command(**kwargs):
             resource_group_name=kwargs['c3']
             storage_account_name=kwargs['c4']
             container_name=kwargs['c5']
-        subscription_id = os.environ.get("SUBSCRIPTION_ID")
-        client_id=os.environ.get("CLIENT_ID")
-        client_secret=os.environ.get("CLIENT_SECRET")
-        tenant_id=os.environ.get("TENANT_ID")
         storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
         storage_account_key = storage_details.azure_storage()
         action = BlobFiles(storage_account_name, storage_account_key, condition, number_of_days_old, container_name)
-        response = action.azure_blob()
-        SLACK_BOT_TOKEN =  os.environ.get("SLACK_BOT_TOKEN")
+        response = action.azure_blob()    
         slack = SlackPost(slack_channel_id, SLACK_BOT_TOKEN, response)
         slack.slack_notification()
     elif len(kwargs) > 6:
@@ -60,15 +60,10 @@ def bot_command(**kwargs):
             storage_account_name=kwargs['c4']
             container_name=kwargs['c5']
             file_pattern=kwargs['c6']
-        subscription_id = os.environ.get("SUBSCRIPTION_ID")
-        client_id=os.environ.get("CLIENT_ID")
-        client_secret=os.environ.get("CLIENT_SECRET")
-        tenant_id=os.environ.get("TENANT_ID")
         storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
         storage_account_key = storage_details.azure_storage()
         action = BlobFilesPattern(storage_account_name, storage_account_key, condition, number_of_days_old, container_name, file_pattern)
         response = action.azure_blob_file()
-        SLACK_BOT_TOKEN =  os.environ.get("SLACK_BOT_TOKEN")
         slack = SlackPost(slack_channel_id, SLACK_BOT_TOKEN, response)
         slack.slack_notification()
     else:
