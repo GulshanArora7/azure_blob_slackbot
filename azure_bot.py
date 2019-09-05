@@ -7,20 +7,20 @@ import sys
 import argparse
 import requests
 import threading
+from os.path import join, dirname
+from dotenv import load_dotenv
 from flask import abort, Flask, jsonify, request
+from application.storage_account_key import STORAGE
 from application.list_blob import BlobFiles
 from application.list_blob_files import BlobFilesPattern
 from application.slack_post import SlackPost
 
-AZURE_STORAGE_ACCOUNT=''
-AZURE_STORAGE_ACCESS_KEY=''
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
-SLACK_VERIFICATION_TOKEN=''
-
-SLACK_BOT_TOKEN = ''
 
 def is_request_valid(request):
-    is_token_valid = request.form['token'] == SLACK_VERIFICATION_TOKEN
+    is_token_valid = request.form['token'] == os.environ.get("SLACK_VERIFICATION_TOKEN")
     return is_token_valid
 
 app = Flask(__name__)
@@ -34,27 +34,41 @@ def bot_command(**kwargs):
     time.sleep(5)
     if len(kwargs) <= 6:
         for key, value in kwargs.items():
-            account=kwargs['account']
-            account_key=kwargs['account_key']
             slack_channel_id=kwargs['slack_channel_id']
             condition=kwargs['c1']
             number_of_days_old=kwargs['c2']
-            container_name=kwargs['c3']
-        action = BlobFiles(account, account_key, condition, number_of_days_old, container_name)
+            resource_group_name=kwargs['c3']
+            storage_account_name=kwargs['c4']
+            container_name=kwargs['c5']
+        subscription_id = os.environ.get("SUBSCRIPTION_ID")
+        client_id=os.environ.get("CLIENT_ID")
+        client_secret=os.environ.get("CLIENT_SECRET")
+        tenant_id=os.environ.get("TENANT_ID")
+        storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
+        storage_account_key = storage_details.azure_storage()
+        action = BlobFiles(storage_account_name, storage_account_key, condition, number_of_days_old, container_name)
         response = action.azure_blob()
+        SLACK_BOT_TOKEN =  os.environ.get("SLACK_BOT_TOKEN")
         slack = SlackPost(slack_channel_id, SLACK_BOT_TOKEN, response)
         slack.slack_notification()
     elif len(kwargs) > 6:
         for key, value in kwargs.items():
-            account=kwargs['account']
-            account_key=kwargs['account_key']
             slack_channel_id=kwargs['slack_channel_id']
             condition=kwargs['c1']
             number_of_days_old=kwargs['c2']
-            container_name=kwargs['c3']
-            file_pattern=kwargs['c4']
-        action = BlobFilesPattern(account, account_key, condition, number_of_days_old, container_name, file_pattern)
+            resource_group_name=kwargs['c3']
+            storage_account_name=kwargs['c4']
+            container_name=kwargs['c5']
+            file_pattern=kwargs['c6']
+        subscription_id = os.environ.get("SUBSCRIPTION_ID")
+        client_id=os.environ.get("CLIENT_ID")
+        client_secret=os.environ.get("CLIENT_SECRET")
+        tenant_id=os.environ.get("TENANT_ID")
+        storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
+        storage_account_key = storage_details.azure_storage()
+        action = BlobFilesPattern(storage_account_name, storage_account_key, condition, number_of_days_old, container_name, file_pattern)
         response = action.azure_blob_file()
+        SLACK_BOT_TOKEN =  os.environ.get("SLACK_BOT_TOKEN")
         slack = SlackPost(slack_channel_id, SLACK_BOT_TOKEN, response)
         slack.slack_notification()
     else:
@@ -67,15 +81,15 @@ def azure_bot():
     slack_channel_id = request.form.get('channel_id')
     command_text = request.form.get('text')
     command_text = command_text.split(' ')
-    if len(command_text) > 1 and len(command_text) <= 3:
-        t = threading.Thread(target=bot_command, kwargs={'account': AZURE_STORAGE_ACCOUNT, 'account_key': AZURE_STORAGE_ACCESS_KEY, 'slack_channel_id': slack_channel_id, 'c1': command_text[0], 'c2': str(command_text[1]), 'c3': command_text[2]})
+    if len(command_text) > 1 and len(command_text) <= 5:
+        t = threading.Thread(target=bot_command, kwargs={'slack_channel_id': slack_channel_id, 'c1': command_text[0], 'c2': str(command_text[1]), 'c3': command_text[2], 'c4': command_text[3], 'c5': command_text[4]})
         t.start()
         return jsonify(
             response_type = "in_channel",
             text='Request is Accepted..Processing it..Please wait..!!',
         )
-    elif len(command_text) >= 4:
-        t = threading.Thread(target=bot_command, kwargs={'account': AZURE_STORAGE_ACCOUNT, 'account_key': AZURE_STORAGE_ACCESS_KEY, 'slack_channel_id': slack_channel_id, 'c1': command_text[0], 'c2': str(command_text[1]), 'c3': command_text[2], 'c4': command_text[3]})
+    elif len(command_text) >= 6:
+        t = threading.Thread(target=bot_command, kwargs={'slack_channel_id': slack_channel_id, 'c1': command_text[0], 'c2': str(command_text[1]), 'c3': command_text[2], 'c4': command_text[3], 'c5': command_text[4], 'c6': command_text[5]})
         t.start()
         return jsonify(
             response_type = "in_channel",
