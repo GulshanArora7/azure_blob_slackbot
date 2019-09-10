@@ -19,7 +19,7 @@ class SlackPost:
                 "color": "#F35A00",
                 "fields": [
                     {
-                        "title": "_Blob File Names_",
+                        "title": "_Blob File Names_ : _Blob File Size_",
                         "value": slack_data,
                     }
                 ]

@@ -48,7 +48,7 @@ def bot_command(**kwargs):
         storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
         storage_account_key = storage_details.azure_storage()
         action = BlobFiles(storage_account_name, storage_account_key, condition, number_of_days_old, container_name)
-        response = action.azure_blob()    
+        response = action.azure_blob()
         slack = SlackPost(slack_channel_id, SLACK_BOT_TOKEN, response)
         slack.slack_notification()
     elif len(kwargs) > 6:
@@ -73,6 +73,7 @@ def bot_command(**kwargs):
 def azure_bot():
     if not is_request_valid(request):
         abort(400)
+    
     slack_channel_id = request.form.get('channel_id')
     command_text = request.form.get('text')
     command_text = command_text.split(' ')

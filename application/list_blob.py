@@ -1,6 +1,7 @@
 import datetime
 import re
 from azure.storage.blob import BlockBlobService
+from application.convert_size import SIZE_CONVERSION
 
 class BlobFiles:
     def __init__(self, storage_account_name, storage_account_key, condition, number_of_days_old, container_name ):
@@ -20,10 +21,14 @@ class BlobFiles:
             time_between_insertion = today - blob_date
             if self.condition == "last":
                 if  time_between_insertion.days <= self.number_of_days_old:
-                    name_list.append(blob.name)
+                    c_size = SIZE_CONVERSION(blob.properties.content_length)
+                    blob_size = c_size.convert_size()
+                    name_list.append(' : '.join([blob.name, blob_size]))
             elif self.condition == "before":
                 if  time_between_insertion.days >= self.number_of_days_old:
-                    name_list.append(blob.name)
+                    c_size = SIZE_CONVERSION(blob.properties.content_length)
+                    blob_size = c_size.convert_size()
+                    name_list.append(' : '.join([blob.name, blob_size]))
             else:
                 print("Unexpected ERROR..!!")
         return name_list
