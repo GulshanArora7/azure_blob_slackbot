@@ -39,12 +39,12 @@ def bot_command(**kwargs):
     time.sleep(5)
     if len(kwargs) <= 6:
         for key, value in kwargs.items():
-            slack_channel_id=kwargs['slack_channel_id']
-            condition=kwargs['c1']
-            number_of_days_old=kwargs['c2']
-            resource_group_name=kwargs['c3']
-            storage_account_name=kwargs['c4']
-            container_name=kwargs['c5']
+            slack_channel_id = kwargs['slack_channel_id']
+            condition = kwargs['c1']
+            number_of_days_old = kwargs['c2']
+            resource_group_name = kwargs['c3']
+            storage_account_name = kwargs['c4']
+            container_name = kwargs['c5']
         storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
         storage_account_key = storage_details.azure_storage()
         action = BlobFiles(storage_account_name, storage_account_key, condition, number_of_days_old, container_name)
@@ -53,13 +53,13 @@ def bot_command(**kwargs):
         slack.slack_notification()
     elif len(kwargs) > 6:
         for key, value in kwargs.items():
-            slack_channel_id=kwargs['slack_channel_id']
-            condition=kwargs['c1']
-            number_of_days_old=kwargs['c2']
-            resource_group_name=kwargs['c3']
-            storage_account_name=kwargs['c4']
-            container_name=kwargs['c5']
-            file_pattern=kwargs['c6']
+            slack_channel_id = kwargs['slack_channel_id']
+            condition = kwargs['c1']
+            number_of_days_old = kwargs['c2']
+            resource_group_name = kwargs['c3']
+            storage_account_name = kwargs['c4']
+            container_name = kwargs['c5']
+            file_pattern = kwargs['c6']
         storage_details = STORAGE(subscription_id, client_id, client_secret, tenant_id, resource_group_name, storage_account_name)
         storage_account_key = storage_details.azure_storage()
         action = BlobFilesPattern(storage_account_name, storage_account_key, condition, number_of_days_old, container_name, file_pattern)
@@ -73,7 +73,7 @@ def bot_command(**kwargs):
 def azure_bot():
     if not is_request_valid(request):
         abort(400)
-    
+
     slack_channel_id = request.form.get('channel_id')
     command_text = request.form.get('text')
     command_text = command_text.split(' ')
@@ -97,5 +97,5 @@ def azure_bot():
             text = 'Please enter the valid number of argument',
         )
 
-if __name__ == '__main__':  
+if __name__ == '__main__':
     app.run(debug=False,use_reloader=True,host='0.0.0.0',port=int(os.environ.get('PORT', 9090)))
