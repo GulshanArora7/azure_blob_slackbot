@@ -7,16 +7,20 @@ import sys
 import argparse
 import requests
 import threading
-from os.path import join, dirname
-from dotenv import load_dotenv
+
+## Note: Comment out below 2 lines if you not running this script manually and assign variable in .env file
+#from os.path import join, dirname
+#from dotenv import load_dotenv
+
 from flask import abort, Flask, jsonify, request
 from application.storage_account_key import STORAGE
 from application.list_blob import BlobFiles
 from application.list_blob_files import BlobFilesPattern
 from application.slack_post import SlackPost
 
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+## Note: Comment out below 2 lines if you not running this script manually and assign variable in .env file
+#dotenv_path = join(dirname(__file__), '.env')
+#load_dotenv(dotenv_path)
 
 subscription_id = os.environ.get("SUBSCRIPTION_ID")
 client_id=os.environ.get("CLIENT_ID")
@@ -29,11 +33,6 @@ def is_request_valid(request):
     return is_token_valid
 
 app = Flask(__name__)
-
-@app.route('/')
-def health_check():
-    return "Application is UP..!!"
-
 
 def bot_command(**kwargs):
     time.sleep(5)
@@ -69,12 +68,16 @@ def bot_command(**kwargs):
     else:
         print("Not entered correct number of arguments")
 
+@app.route('/health')
+def health_check():
+    return "Application is UP..!!"
+
 @app.route('/azure-bot',methods=['POST'])
 def azure_bot():
     if not is_request_valid(request):
         abort(400)
 
-    slack_channel_id = request.form.get('channel_id')
+    slack_channel_id = os.environ.get('SLACK_CHANNEL_ID')
     command_text = request.form.get('text')
     command_text = command_text.split(' ')
     if len(command_text) > 1 and len(command_text) <= 5:

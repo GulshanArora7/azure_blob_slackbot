@@ -1,0 +1,6 @@
+Dockerfile
+azure-slackbot-blob/
+.dockerignore
+env/
+README.md
+.env
