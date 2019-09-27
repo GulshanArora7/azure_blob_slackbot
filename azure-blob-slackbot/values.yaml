@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: garoradevops/azure-blob-slackbot
-  tag: stable
+  tag: v1.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
