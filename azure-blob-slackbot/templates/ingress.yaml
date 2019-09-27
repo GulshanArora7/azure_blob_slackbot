@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "azure-slackbot-blob.fullname" . -}}
+{{- $fullName := include "azure-blob-slackbot.fullname" . -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
 {{- $servicePort := .Values.service.port -}}
 apiVersion: extensions/v1beta1
@@ -7,7 +7,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-{{ include "azure-slackbot-blob.labels" . | indent 4 }}
+{{ include "azure-blob-slackbot.labels" . | indent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

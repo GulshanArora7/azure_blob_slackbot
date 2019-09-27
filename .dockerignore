@@ -1,5 +1,5 @@
 Dockerfile
-azure-slackbot-blob/
+azure-blob-slackbot/
 .dockerignore
 env/
 README.md

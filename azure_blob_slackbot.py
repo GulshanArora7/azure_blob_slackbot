@@ -68,9 +68,10 @@ def bot_command(**kwargs):
     else:
         print("Not entered correct number of arguments")
 
-@app.route('/health')
+@app.route('/v1/health')
 def health_check():
-    return "Application is UP..!!"
+    health_response = "Application is UP..!!"
+    return jsonify({"Status" : health_response})
 
 @app.route('/azure-bot',methods=['POST'])
 def azure_bot():

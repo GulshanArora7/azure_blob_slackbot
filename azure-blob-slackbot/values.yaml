@@ -1,11 +1,11 @@
-# Default values for azure-slackbot-blob.
+# Default values for azure-blob-slackbot.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: garoradevops/azure-slackbot-blob
+  repository: garoradevops/azure-blob-slackbot
   tag: stable
   pullPolicy: IfNotPresent
 
